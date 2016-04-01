@@ -1,4 +1,3 @@
-debug = true
 player = { x = 200, y = 710, speed = 400, img = nil }
 
 canShoot = true
@@ -28,10 +27,6 @@ function love.update(dt)
   local newEnemy = nil
   local randomeNumber = nil
 
-  if love.keyboard.isDown('escape') then
-    love.event.push('quit')
-  end
-
   createEnemyTimer = createEnemyTimer - (1 * dt)
   if createEnemyTimer < 0 then
     createEnemyTimer = createEnemyTimerMax
@@ -44,6 +39,7 @@ function love.update(dt)
       randomNumber = math.random(10, love.graphics.getWidth() - 10 - enemyImg:getWidth())
       newEnemy = { x = randomNumber, y = -10, img = enemyImg, health = 2, points = 1 }
     end
+
     table.insert(enemies, newEnemy)
   end
 
@@ -98,7 +94,7 @@ function love.draw(dt)
   end
 
   for i, enemy in ipairs(enemies) do
-    love.graphics.draw(enemy.img, enemy.x, enemy.y, 3.14159, 1, 1, enemy.img:getWidth(), enemy.img:getHeight())
+    love.graphics.draw(enemy.img, enemy.x, enemy.y, math.pi, 1, 1, enemy.img:getWidth(), enemy.img:getHeight())
   end
 
   if isAlive then
@@ -111,6 +107,9 @@ function love.draw(dt)
 end
 
 function processInput(dt)
+  if love.keyboard.isDown('escape') then
+    love.event.push('quit')
+  end
 
   if love.keyboard.isDown('space', ' ', 'rctrl', 'lctrl', 'ctrl') and canShoot and isAlive then
     -- Create some bullets
@@ -159,9 +158,9 @@ end
 
 function CheckCollision(objA, objB)
   return  objA.x < objB.x + objB.img:getWidth() and
-  objB.x < objA.x + objA.img:getWidth() and
-  objA.y < objB.y + objB.img:getHeight() and
-  objB.y < objA.y + objA.img:getHeight()
+          objB.x < objA.x + objA.img:getWidth() and
+          objA.y < objB.y + objB.img:getHeight() and
+          objB.y < objA.y + objA.img:getHeight()
 end
 
 function checkCollisions()
@@ -185,4 +184,3 @@ function checkCollisions()
     end
   end
 end
-
