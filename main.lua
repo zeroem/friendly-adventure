@@ -156,7 +156,7 @@ function processInput(dt)
   end
 end
 
-function CheckCollision(objA, objB)
+function overlap(objA, objB)
   return  objA.x < objB.x + objB.img:getWidth() and
           objB.x < objA.x + objA.img:getWidth() and
           objA.y < objB.y + objB.img:getHeight() and
@@ -166,7 +166,7 @@ end
 function checkCollisions()
   for i, enemy in ipairs(enemies) do
     for j, bullet in ipairs(bullets) do
-      if CheckCollision(enemy, bullet) then
+      if overlap(enemy, bullet) then
         table.remove(bullets, j)
         enemy.health = enemy.health - 1
 
@@ -177,8 +177,7 @@ function checkCollisions()
       end
     end
 
-    if CheckCollision(enemy, player) 
-      and isAlive then
+    if overlap(enemy, player) and isAlive then
       table.remove(enemies, i)
       isAlive = false
     end
