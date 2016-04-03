@@ -1,0 +1,6 @@
+#!/bin/bash
+
+declare -r bin_dir="$(cd "$(dirname "$0")"; pwd)";
+
+"$bin_dir"/package_nix
+"$bin_dir"/package_osx
