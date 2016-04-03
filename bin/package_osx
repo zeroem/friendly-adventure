@@ -12,7 +12,7 @@ cd "$dist_dir"
 unzip "$love_osx"
 
 rm -rf "$package_name"
-rm -rf friendly-adventure.zip
+rm -rf friendly-adventure-osx.zip
 mv love.app "${package_name}"
 
 cp friendly-adventure.love "$package_name"/Contents/Resources
