@@ -173,6 +173,9 @@ function checkCollisions()
         if enemy.health <= 0 then
           table.remove(enemies, i)
           score = score + enemy.points
+
+          -- Stop consuming bullets if the enemy is dead
+          break
         end
       end
     end
