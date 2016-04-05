@@ -23,7 +23,7 @@ score = 0
 function love.load(arg)
   player.img = love.graphics.newImage('assets/aircraft/Aircraft_03.png')
   player.bbox = newBBox(0, 0, player.img:getWidth() * scale, player.img:getHeight() * scale)
-  bulletImg = love.graphics.newImage('assets/aircraft/bullet_2_blue.png')
+  bulletImg = love.graphics.newImage('assets/aircraft/bullet_2_orange.png')
   enemyImg = love.graphics.newImage('assets/aircraft/Aircraft_01.png')
   bossImg = love.graphics.newImage('assets/aircraft/Aircraft_02.png')
 end
