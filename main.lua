@@ -1,5 +1,5 @@
-player = { origin = { x = 200, y = 710 }, speed = 400, img = nil, bbox = nil}
-scale = 0.5
+player = { origin = { x = 200, y = 710 }, speed = 400, img = nil, bbox = {}}
+scale = 0.75
 debug = {
   bb = false
 }
@@ -22,7 +22,7 @@ score = 0
 
 function love.load(arg)
   player.img = love.graphics.newImage('assets/aircraft/Aircraft_03.png')
-  player.bbox = newBBox(0, 0, player.img:getWidth() * scale, player.img:getHeight() * scale)
+  player.bbox = {newBBox(0, 22 * scale, player.img:getWidth() * scale, 20 * scale), newBBox(player.img:getWidth() * scale / 2 -7, 0, 14, (player.img:getHeight() - 5) * scale)}
   bulletImg = love.graphics.newImage('assets/aircraft/bullet_2_orange.png')
   enemyImg = love.graphics.newImage('assets/aircraft/Aircraft_01.png')
   bossImg = love.graphics.newImage('assets/aircraft/Aircraft_02.png')
@@ -38,15 +38,14 @@ function love.update(dt)
 
     -- Create an enemy
     if math.random(1, 10) <= 1 then
-      newEnemy = { img = bossImg, health = 3, points = 10 }
+      newEnemy = { img = bossImg, health = 3, points = 10, bbox = {newBBox(0, 40 * scale, player.img:getWidth() * scale, 20 * scale)} }
     else
-      newEnemy = { img = enemyImg, health = 2, points = 1 }
+      newEnemy = { img = enemyImg, health = 2, points = 1, bbox = {newBBox(0, 50 * scale, player.img:getWidth() * scale, 20 * scale)}}
     end
 
+    table.insert(newEnemy.bbox, newBBox(newEnemy.img:getWidth() * scale / 2 - 7, 0, 14, (newEnemy.img:getHeight() - 5) * scale))
     randomNumber = math.random(10, love.graphics.getWidth() - 10 - newEnemy.img:getWidth() * scale)
     newEnemy.origin = {x = randomNumber, y = -10}
-
-    newEnemy.bbox = newBBox(0, 0, newEnemy.img:getWidth() * scale, newEnemy.img:getHeight() * scale)
 
     table.insert(enemies, newEnemy)
   end
@@ -127,17 +126,23 @@ function love.draw(dt)
 end
 
 function processInput(dt)
+  local newBullet = nil
+  local newBulletBBox = nil
+
   if love.keyboard.isDown('escape') then
     love.event.push('quit')
   end
 
   if love.keyboard.isDown('space', ' ', 'rctrl', 'lctrl', 'ctrl') and canShoot and isAlive then
     -- Create some bullets
-    newBullet = { origin = {x = player.origin.x + (player.bbox.dx/2) + 15, y = player.origin.y}, img = bulletImg, bbox = newBBox( 0, 0, bulletImg:getWidth(), bulletImg:getHeight())}
+    newBulletBBox = {newBBox( 0, 0, bulletImg:getWidth(), bulletImg:getHeight())}
+
+    newBullet = { origin = {x = player.origin.x + (player.img:getWidth()*scale/2) + 15, y = player.origin.y}, img = bulletImg, bbox = newBulletBBox }
     table.insert(bullets, newBullet)
 
-    newBullet = { origin = {x = player.origin.x + (player.bbox.dx/2) - 15, y = player.origin.y}, img = bulletImg, bbox = newBBox( 0, 0, bulletImg:getWidth(), bulletImg:getHeight())}
+    newBullet = { origin = {x = player.origin.x + (player.img:getWidth()*scale/2) - 15, y = player.origin.y}, img = bulletImg, bbox = newBulletBBox }
     table.insert(bullets, newBullet)
+
     canShoot = false
     canShootTimer = canShootTimerMax
   end
@@ -180,10 +185,18 @@ function processInput(dt)
 end
 
 function overlap(objA, objB)
-  return  objA.origin.x < objB.origin.x + objB.bbox.ox + objB.bbox.dx and
-          objB.origin.x < objA.origin.x + objA.bbox.ox + objA.bbox.dx and
-          objA.origin.y < objB.origin.y + objB.bbox.oy + objB.bbox.dy and
-          objB.origin.y < objA.origin.y + objA.bbox.oy + objA.bbox.dy
+  for i, bboxA in ipairs(objA.bbox) do
+    for i, bboxB in ipairs(objB.bbox) do
+      if objA.origin.x < (objB.origin.x + bboxB.ox + bboxB.dx) and
+         objB.origin.x < (objA.origin.x + bboxA.ox + bboxA.dx) and
+         objA.origin.y < (objB.origin.y + bboxB.oy + bboxB.dy) and
+         objB.origin.y < (objA.origin.y + bboxA.oy + bboxA.dy) then
+         return true
+       end
+     end
+   end
+
+   return false
 end
 
 function checkCollisions()
@@ -211,13 +224,15 @@ function checkCollisions()
 end
 
 function drawBoundingBox(obj)
-  love.graphics.rectangle(
-    'line',
-    obj.origin.x + obj.bbox.ox,
-    obj.origin.y + obj.bbox.oy,
-    obj.bbox.dx,
-    obj.bbox.dy
-  )
+  for i,bbox in ipairs(obj.bbox) do
+    love.graphics.rectangle(
+      'line',
+      obj.origin.x + bbox.ox,
+      obj.origin.y + bbox.oy,
+      bbox.dx,
+      bbox.dy
+    )
+  end
 end
 
 function newBBox(ox, oy, dx, dy)
