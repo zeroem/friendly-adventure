@@ -1,7 +1,7 @@
 player = { origin = { x = 200, y = 710 }, speed = 400, img = nil, bbox = nil}
 scale = 0.5
 debug = {
-  bb = true
+  bb = false
 }
 
 canShoot = true
@@ -98,7 +98,7 @@ end
 
 function love.draw(dt)
   for i, bullet in ipairs(bullets) do
-    love.graphics.draw(bullet.img, bullet.origin.x, bullet.origin.y, 0, scale, scale)
+    love.graphics.draw(bullet.img, bullet.origin.x, bullet.origin.y, 0)
 
     if debug.bb  then
       drawBoundingBox(bullet)
@@ -133,10 +133,10 @@ function processInput(dt)
 
   if love.keyboard.isDown('space', ' ', 'rctrl', 'lctrl', 'ctrl') and canShoot and isAlive then
     -- Create some bullets
-    newBullet = { origin = {x = player.origin.x + (player.bbox.dx/2) + 15, y = player.origin.y}, img = bulletImg, bbox = newBBox( 0, 0, bulletImg:getWidth() * scale, bulletImg:getHeight() * scale)}
+    newBullet = { origin = {x = player.origin.x + (player.bbox.dx/2) + 15, y = player.origin.y}, img = bulletImg, bbox = newBBox( 0, 0, bulletImg:getWidth(), bulletImg:getHeight())}
     table.insert(bullets, newBullet)
 
-    newBullet = { origin = {x = player.origin.x + (player.bbox.dx/2) - 15, y = player.origin.y}, img = bulletImg, bbox = newBBox( 0, 0, bulletImg:getWidth() * scale, bulletImg:getHeight() * scale)}
+    newBullet = { origin = {x = player.origin.x + (player.bbox.dx/2) - 15, y = player.origin.y}, img = bulletImg, bbox = newBBox( 0, 0, bulletImg:getWidth(), bulletImg:getHeight())}
     table.insert(bullets, newBullet)
     canShoot = false
     canShootTimer = canShootTimerMax
