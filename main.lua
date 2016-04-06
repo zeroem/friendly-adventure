@@ -187,10 +187,10 @@ end
 function overlap(objA, objB)
   for i, bboxA in ipairs(objA.bbox) do
     for i, bboxB in ipairs(objB.bbox) do
-      if objA.origin.x < (objB.origin.x + bboxB.ox + bboxB.dx) and
-         objB.origin.x < (objA.origin.x + bboxA.ox + bboxA.dx) and
-         objA.origin.y < (objB.origin.y + bboxB.oy + bboxB.dy) and
-         objB.origin.y < (objA.origin.y + bboxA.oy + bboxA.dy) then
+      if (objA.origin.x + bboxA.ox) < (objB.origin.x + bboxB.ox + bboxB.dx) and
+         (objB.origin.x + bboxB.ox) < (objA.origin.x + bboxA.ox + bboxA.dx) and
+         (objA.origin.y + bboxA.oy) < (objB.origin.y + bboxB.oy + bboxB.dy) and
+         (objB.origin.y + bboxB.oy) < (objA.origin.y + bboxA.oy + bboxA.dy) then
          return true
        end
      end
