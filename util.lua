@@ -18,13 +18,15 @@ function array_empty(a)
 end
 
 function getOrigin(entity)
-  for c in entity:getComponentsByType('origin') do
-    return c
-  end
+  return getSingleComponent(entity, 'origin')
 end
 
 function getBounds(entity)
-  for c in entity:getComponentsByType('bounds') do
+  return getSingleComponent(entity, 'bounds')
+end
+
+function getSingleComponent(entity, t)
+  for c in entity:getComponentsByType(t) do
     return c
   end
 end
