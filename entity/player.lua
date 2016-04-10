@@ -19,11 +19,14 @@ function createPlayer(game)
   player:addComponent('hitbox', newBBox(game:scale(img:getWidth()) / 2 -7, 0, 14, game:scale(img:getHeight() - 5)))
 
   player:addComponent('update', { 
+    maxLevel = 5,
     update = function(self, game, dt)
       for _, p in game.ecs:getComponentsByType('powerup') do
         if util.hitboxCollision(player, p) then
           game.ecs:removeEntity(p)
-          state.level = state.level + 1
+          if state.level < self.maxLevel then
+            state.level = state.level + 1
+          end
         end
       end
 

@@ -23,14 +23,22 @@ function createGun(game)
         -- Generate a new bullet...
         local playerOrigin = util.getOrigin(game.player)
         local playerBounds = util.getBounds(game.player)
+        local playerState = util.getSingleComponent(game.player, 'state')
+        local shotLevel = playerState.level
 
-        for _, offset in ipairs({playerBounds.dx/3, playerBounds.dx/3*2}) do
+        local shots = {}
+
+        for i=1,shotLevel do
+          table.insert(shots, playerBounds.dx / (shotLevel +1) * i)
+        end
+
+        for _, shotOffset in ipairs(shots) do
 
           local bullet = game.ecs:newEntity()
           local img = game.resources.bulletImg
 
           local bulletOrigin = bullet:addComponent('origin', {
-            x = playerOrigin.x + offset,
+            x = playerOrigin.x + shotOffset,
             y = playerOrigin.y
           })
 
