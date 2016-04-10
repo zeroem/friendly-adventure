@@ -1,5 +1,7 @@
 module('entity.player', package.seeall)
 
+require 'util'
+
 function createPlayer(game)
   local player = game.ecs:newEntity()
   local origin = player:addComponent('origin', { x = 200, y = 710 })
@@ -9,6 +11,7 @@ function createPlayer(game)
     'bounds',
     { dx = game:scale(img:getWidth()), dy = game:scale(img:getHeight())}
   )
+  local state = player:addComponent('state', { level = 1 })
 
   player:addComponent('player')
   player:addComponent('render', {img = img})
@@ -16,11 +19,25 @@ function createPlayer(game)
   player:addComponent('hitbox', newBBox(game:scale(img:getWidth()) / 2 -7, 0, 14, game:scale(img:getHeight() - 5)))
 
   player:addComponent('update', { 
-    lastShot = nil,
-    update = function(game, game, dt)
+    update = function(self, game, dt)
+      for _, p in game.ecs:getComponentsByType('powerup') do
+        if util.hitboxCollision(player, p) then
+          game.ecs:removeEntity(p)
+          state.level = state.level + 1
+        end
+      end
+
       for _, e in game.ecs:getComponentsByType('enemy') do
         if util.hitboxCollision(player, e) then
-          game:playerDeath()
+          collisionDamage = util.getSingleComponent(e, 'stats')['collisionDamage']
+          state.level = state.level - collisionDamage
+
+          game.ecs:removeEntity(e)
+
+          if state.level <= 0 then
+            game:playerDeath()
+            return
+          end
         end
       end
 

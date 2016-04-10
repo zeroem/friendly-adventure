@@ -13,6 +13,7 @@ game = {
     bulletImg = 'assets/aircraft/bullet_2_orange.png',
     enemyImg = 'assets/aircraft/Aircraft_01.png',
     powerupEnemyImg = 'assets/aircraft/Aircraft_02.png',
+    powerupImg = 'assets/aircraft/bullet_purple0001.png'
   },
   isAlive = true,
   config = {
@@ -69,11 +70,7 @@ function love.update(dt)
 
   if not game.isAlive and love.keyboard.isDown('r') then
     -- remove all our bullets and enemies from screen
-    for _, b in game.ecs:getComponentsByType('bullet') do
-      game.ecs:removeEntity(b)
-    end
-
-    for _, e in game.ecs:getComponentsByType('enemy') do
+    for _, e in game.ecs:getComponentsByType('clear-on-reset') do
       game.ecs:removeEntity(e)
     end
 
@@ -99,8 +96,8 @@ function love.draw(dt)
       origin.x,
       origin.y,
       render.r,
-      game:scale(),
-      game:scale(),
+      render.sx or game:scale(),
+      render.sy or game:scale(),
       render.ox,
       render.oy,
       render.kx,

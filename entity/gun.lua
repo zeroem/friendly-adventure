@@ -40,6 +40,7 @@ function createGun(game)
           }) 
 
           bullet:addComponent('bullet')
+          bullet:addComponent('clear-on-reset')
           bullet:addComponent('render', { img = img })
           bullet:addComponent('update', {
             update = function(self, game, dt)
