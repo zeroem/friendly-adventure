@@ -24,6 +24,7 @@ function createPlayer(game)
       for _, p in game.ecs:getComponentsByType('powerup') do
         if util.hitboxCollision(player, p) then
           game.ecs:removeEntity(p)
+          game.score = game.score + 25
           if state.level < self.maxLevel then
             state.level = state.level + 1
           end

@@ -45,7 +45,7 @@ function createGun(game)
           local bulletHitbox = bullet:addComponent('hitbox', {
             dx = game:scale(img:getWidth()),
             dy = game:scale(img:getHeight())
-          }) 
+          })
 
           bullet:addComponent('bullet')
           bullet:addComponent('clear-on-reset')
