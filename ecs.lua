@@ -14,12 +14,13 @@ end
 
 function ecs.new()
     return {
-      components = {},
+      components = {nil, nil, nil, nil, nil, nil, nil, nil, nil, nil},
 
-      newEntity = function(self)
+      newEntity = function(self, name)
         local system = self
         return {
-          components = {},
+          components = {nil, nil, nil, nil, nil, nil, nil, nil, nil, nil},
+          name = name,
 
           addComponent = function(self, componentType, data)
             local data = data or {}
@@ -27,7 +28,7 @@ function ecs.new()
             data._type = componentType
 
             if self.components[componentType] == nil then
-              self.components[componentType] = {}
+              self.components[componentType] = {nil, nil, nil, nil, nil}
             end
 
             table.insert(self.components[componentType], data)
@@ -57,7 +58,7 @@ function ecs.new()
 
       _addComponent = function(self, data)
         if self.components[data._type] == nil then
-          self.components[data._type] = {}
+          self.components[data._type] = {nil, nil, nil, nil, nil, nil, nil, nil, nil, nil}
         end
 
         table.insert(self.components[data._type], data)
@@ -72,24 +73,22 @@ function ecs.new()
       end,
 
       removeComponent = function(self, c)
-        for i, comp in ipairs(self.components[c._type]) do
+        for i, comp in pairs(self.components[c._type]) do
           if comp == c then
-            table.remove(self.components[c._type], i)
+            self.components[c._type][i] = nil
             return
           end
         end
       end,
 
       removeEntity = function(self, ent)
+        -- For each component type defined on the entity to be removed
         for k, _ in pairs(ent.components) do
-          local result = {}
-          for i, c in ipairs(self.components[k]) do
-            if c._owner ~= ent then
-              table.insert(result, c)
+          for i, c in pairs(self.components[k]) do
+            if c._owner == ent then
+              self.components[k][i] = nil
             end
           end
-
-          self.components[k] = result
         end
       end,
     }

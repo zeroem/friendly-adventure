@@ -1,7 +1,5 @@
 module('util', package.seeall)
 
--- Somehow this makes things faster?
--- http://stackoverflow.com/questions/1252539/most-efficient-way-to-determine-if-a-lua-table-is-empty-contains-no-entries
 local next = next
 
 function array_iterator(a)
@@ -25,10 +23,12 @@ function getBounds(entity)
   return getSingleComponent(entity, 'bounds')
 end
 
-function getSingleComponent(entity, t)
+function getSingleComponent(entity, t, default)
   for c in entity:getComponentsByType(t) do
     return c
   end
+
+  return default
 end
 
 function hitboxCollision(e1, e2)
@@ -55,4 +55,23 @@ function overlap(originA, bboxA, originB, bboxB)
    end
 
    return false
+end
+
+function renderImage(game, origin, data)
+  return {
+    render = function()
+      love.graphics.draw(
+        data.img,
+        origin.x or 0,
+        origin.y or 0,
+        data.r or 0,
+        data.sx or game:scale(),
+        data.sy or data.sx or game:scale(),
+        data.ox or 0,
+        data.oy or 0,
+        data.kx or 0,
+        data.ky or 0
+      )
+    end
+  }
 end

@@ -3,7 +3,7 @@ module('entity.player', package.seeall)
 require 'util'
 
 function createPlayer(game)
-  local player = game.ecs:newEntity()
+  local player = game.ecs:newEntity('player')
   local origin = player:addComponent('origin', { x = 200, y = 710 })
   local velocity = player:addComponent('velocity', { speed = 400 })
   local img = game.resources.playerImg
@@ -14,7 +14,8 @@ function createPlayer(game)
   local state = player:addComponent('state', { level = 1 })
 
   player:addComponent('player')
-  player:addComponent('render', {img = img})
+  player:addComponent('clear-on-reset')
+  player:addComponent('render', util.renderImage(game, origin, {img = img}))
   player:addComponent('hitbox', newBBox(0, game:scale(22), game:scale(img:getWidth()), game:scale(20)))
   player:addComponent('hitbox', newBBox(game:scale(img:getWidth()) / 2 -7, 0, 14, game:scale(img:getHeight() - 5)))
 

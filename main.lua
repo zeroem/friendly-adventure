@@ -4,21 +4,25 @@ require 'entity.gun'
 require 'entity.player'
 require 'util'
 
-game = {
+local game = {
   ecs = ecs.new(),
   playArea = nil,
   score = 0,
   resources = {
     playerImg = 'assets/aircraft/Aircraft_03.png',
     bulletImg = 'assets/aircraft/bullet_2_orange.png',
+    waveImg = 'assets/aircraft/bullet_2_blue.png',
     enemyImg = 'assets/aircraft/Aircraft_01.png',
     powerupEnemyImg = 'assets/aircraft/Aircraft_02.png',
-    powerupImg = 'assets/aircraft/bullet_purple0001.png'
+    powerupImg = 'assets/aircraft/bullet_purple0001.png',
+    rocketImg = 'assets/aircraft/rocket_purple.png'
   },
   isAlive = true,
   config = {
     drawHitboxes = false,
-    scale = 0.75
+    drawBoundingBoxes = false,
+    drawOrigins = false,
+    scale = 0.5
   },
   keysPressed = {},
 
@@ -32,7 +36,7 @@ game = {
 
   playerDeath = function(self)
     self.isAlive = false
-    self.ecs:removeEntity(game.player)
+    self.ecs:removeEntity(self.player)
     self.player = nil
   end,
 
@@ -68,7 +72,7 @@ function love.update(dt)
     c:update(game, dt)
   end
 
-  if not game.isAlive and love.keyboard.isDown('r') then
+  if love.keyboard.isDown('r') then
     -- remove all our bullets and enemies from screen
     for _, e in game.ecs:getComponentsByType('clear-on-reset') do
       game.ecs:removeEntity(e)
@@ -86,34 +90,53 @@ function love.draw(dt)
   if not game.isAlive then
     love.graphics.print("Press 'R' to restart", love.graphics:getWidth()/2-50, love.graphics:getHeight()/2-10)
   end
+  local pr, pg, pb, pa = love.graphics.getColor()
 
   love.graphics.print(string.format("Score: %d", game.score), 5, 5)
 
-  for render, entity in game.ecs:getComponentsByType('render') do
-    local origin = util.getOrigin(entity)
-    love.graphics.draw(
-      render.img,
-      origin.x,
-      origin.y,
-      render.r,
-      render.sx or game:scale(),
-      render.sy or game:scale(),
-      render.ox,
-      render.oy,
-      render.kx,
-      render.ky
-    )
+  for render in game.ecs:getComponentsByType('render-0') do
+    render:render()
+    love.graphics.setColor(pr, pg, pb, pa)
+  end
+
+  for render in game.ecs:getComponentsByType('render') do
+    render:render()
+    love.graphics.setColor(pr, pg, pb, pa)
   end
 
   if game.config.drawHitboxes then
-    for hitbox in game.ecs:getComponentsByType('hitbox') do
-      drawBoundingBox(util.getOrigin(hitbox._owner), hitbox)
+    love.graphics.setColor(255,0,0,200)
+    for hitbox, owner in game.ecs:getComponentsByType('hitbox') do
+      drawBoundingBox(util.getOrigin(owner), hitbox)
     end
   end
+
+  if game.config.drawBoundingBoxes then
+    love.graphics.setColor(0,0,255,200)
+    for hitbox, owner in game.ecs:getComponentsByType('bounds') do
+      drawBoundingBox(util.getOrigin(owner), hitbox)
+    end
+  end
+
+  if game.config.drawOrigins then
+    love.graphics.setColor(255,0,255)
+    love.graphics.setPointSize(5)
+    for origin in game.ecs:getComponentsByType('origin') do
+      love.graphics.points(origin.x, origin.y)
+    end
+  end
+
+  love.graphics.setColor(pr, pg, pb, pa)
 end
 
 function processInput(dt)
-  game.keysPressed = {}
+  game.keysPressed = {
+    up    = false,
+    down  = false,
+    left  = false,
+    right = false,
+    quit  = false,
+  }
 
   if love.keyboard.isDown('escape') then
     game.keysPressed.quit = true

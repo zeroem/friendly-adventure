@@ -1,7 +1,7 @@
 module('entity.powerup', package.seeall)
 
 function createPowerup(game, enemy)
-  local powerup = game.ecs:newEntity()
+  local powerup = game.ecs:newEntity('powerup')
   local img = game.resources.powerupImg
   local enemyOrigin = util.getOrigin(enemy)
   local enemyBounds = util.getBounds(enemy)
@@ -20,15 +20,29 @@ function createPowerup(game, enemy)
     dy = game:scale(img:getHeight() * 5)
   })
 
+  local bounds = powerup:addComponent('bounds', {
+    ox = 0, oy = 0,
+    dx = game:scale(img:getWidth() * 5),
+    dy = game:scale(img:getHeight() * 5)
+  })
+
   powerup:addComponent('render', {
-    img = img,
-    sx = game:scale(5),
-    sy = game:scale(5)
+    render = function()
+      love.graphics.setColor(0, 255, 0)
+      love.graphics.print("P", origin.x, origin.y, 0, 2)
+    end
   })
 
   powerup:addComponent('update', {
     update = function(self, game, dt)
       origin.y = origin.y + (dt * 100)
+
+      if not util.overlap(origin,
+                          bounds,
+                          util.getOrigin(game.gameArea),
+                          util.getBounds(game.gameArea)) then
+        game.ecs:removeEntity(powerup)
+      end
     end
   })
 

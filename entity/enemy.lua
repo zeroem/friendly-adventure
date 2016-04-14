@@ -3,7 +3,7 @@ module('entity.enemy', package.seeall)
 require 'entity.powerup'
 
 function createSpawner(game)
-  local spawner = game.ecs:newEntity()
+  local spawner = game.ecs:newEntity('enemySpawner')
   spawner:addComponent('update', {
     lastSpawnTime = nil,
     delay = 0.3,
@@ -24,7 +24,7 @@ function createSpawner(game)
       if self:canSpawn() then
         self.lastSpawnTime = love.timer.getTime()
 
-        if math.random(1, 10) <= 1 then
+        if math.random(1, 30) <= 1 then
           entity.enemy.createPowerupEnemy(game)
         else
           entity.enemy.createEnemy(game)
@@ -53,8 +53,9 @@ function enemyUpdater(opts)
         for bulletHitbox in bullet:getComponentsByType('hitbox') do
           if util.overlap(self.origin, enemyHitbox, bulletOrigin, bulletHitbox) then
             game.ecs:removeEntity(bullet)
+            local bulletDamage = util.getSingleComponent(bullet, 'damage', {amount=1})
 
-            self.stats.health = self.stats.health - 1
+            self.stats.health = self.stats.health - bulletDamage.amount
 
             if self.stats.health <= 0 then
               if opts.deathFn then
@@ -72,7 +73,7 @@ function enemyUpdater(opts)
 end
 
 function createEnemy(game)
-  local enemy = game.ecs:newEntity()
+  local enemy = game.ecs:newEntity('basicEnemy')
   local velocity = enemy:addComponent('velocity', {speed = 200})
   local img = game.resources.enemyImg
   local origin = enemy:addComponent('origin', {
@@ -87,16 +88,16 @@ function createEnemy(game)
 
   enemy:addComponent('enemy')
   enemy:addComponent('clear-on-reset')
-  enemy:addComponent('render', {
+  enemy:addComponent('render', util.renderImage(game, origin, {
     img = img,
     r = math.pi,
     ox = img:getWidth(),
     oy = img:getHeight(),
-  })
+  }))
 
   enemy:addComponent('hitbox', newBBox(0, game:scale(50), game:scale(img:getWidth()), game:scale(20)))
   enemy:addComponent('hitbox', newBBox(game:scale(img:getWidth()) / 2 - 7, 0, 14, game:scale(img:getHeight() - 5)))
-  local stats = enemy:addComponent('stats', {health = 2, points = 1, collisionDamage = 1})
+  local stats = enemy:addComponent('stats', {health = 6, points = 1, collisionDamage = 1})
 
   enemy:addComponent('update', {
     speed = 200,
@@ -109,7 +110,7 @@ function createEnemy(game)
 end
 
 function createPowerupEnemy(game)
-  local enemy = game.ecs:newEntity()
+  local enemy = game.ecs:newEntity('powerupEnemy')
   local velocity = enemy:addComponent('velocity', { speed = 200 })
   local img = game.resources.powerupEnemyImg
   local origin = enemy:addComponent('origin', {
@@ -123,15 +124,15 @@ function createPowerupEnemy(game)
 
   enemy:addComponent('enemy')
   enemy:addComponent('clear-on-reset')
-  enemy:addComponent('render', {
+  enemy:addComponent('render', util.renderImage(game, origin, {
     img = img,
     r = math.pi,
     ox = img:getWidth(),
     oy = img:getHeight(),
-  })
+  }))
   enemy:addComponent('hitbox', newBBox(0, game:scale(40), game:scale(img:getWidth()), game:scale(20)))
   enemy:addComponent('hitbox', newBBox(game:scale(img:getWidth()) / 2 - 7, 0, 14, game:scale(img:getHeight() - 5)))
-  local stats = enemy:addComponent('stats', {health = 5, points = 10, collisionDamage = 2})
+  local stats = enemy:addComponent('stats', {health = 10, points = 10, collisionDamage = 2})
   enemy:addComponent('update', {
     speed = 200,
     origin = origin,
