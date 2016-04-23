@@ -4,6 +4,8 @@ require 'entity.gun'
 require 'entity.player'
 require 'util'
 
+shine = require 'deps/shine'
+
 local game = {
   ecs = ecs.new(),
   playArea = nil,
@@ -55,6 +57,12 @@ local game = {
 
 function love.load(arg)
   game:initGameArea()
+  glow = shine.glowsimple()
+  glow:set("sigma", 1)
+  glow:set("min_luma", 0)
+
+  scanlines = shine.scanlines()
+  scanlines:set("pixel_size", 5)
 
   for k, path in pairs(game.resources) do
     game.resources[k] = love.graphics.newImage(path)
@@ -94,15 +102,19 @@ function love.draw(dt)
 
   love.graphics.print(string.format("Score: %d", game.score), 5, 5)
 
-  for render in game.ecs:getComponentsByType('render-0') do
-    render:render()
-    love.graphics.setColor(pr, pg, pb, pa)
-  end
+  scanlines:draw(function()
+    glow:draw(function()
+      for render in game.ecs:getComponentsByType('render-0') do
+        render:render()
+        love.graphics.setColor(pr, pg, pb, pa)
+      end
+    end)
 
-  for render in game.ecs:getComponentsByType('render') do
-    render:render()
-    love.graphics.setColor(pr, pg, pb, pa)
-  end
+    for render in game.ecs:getComponentsByType('render') do
+      render:render()
+      love.graphics.setColor(pr, pg, pb, pa)
+    end
+  end)
 
   if game.config.drawHitboxes then
     love.graphics.setColor(255,0,0,200)

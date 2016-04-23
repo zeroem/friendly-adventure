@@ -1,0 +1,3 @@
+[submodule "deps/shine"]
+	path = deps/shine
+	url = git@github.com:vrld/shine.git
