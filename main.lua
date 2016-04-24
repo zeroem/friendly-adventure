@@ -19,6 +19,7 @@ local game = {
     powerupImg = 'assets/aircraft/bullet_purple0001.png',
     rocketImg = 'assets/aircraft/rocket_purple.png'
   },
+  spriteBatches = {},
   isAlive = true,
   config = {
     drawHitboxes = false,
@@ -67,6 +68,10 @@ function love.load(arg)
   for k, path in pairs(game.resources) do
     game.resources[k] = love.graphics.newImage(path)
   end
+
+  game.spriteBatches.bullet = love.graphics.newSpriteBatch(game.resources.bulletImg, 25)
+  game.spriteBatches.wave = love.graphics.newSpriteBatch(game.resources.waveImg, 50)
+  game.spriteBatches.rocket = love.graphics.newSpriteBatch(game.resources.rocketImg, 10)
 
   game.player = entity.player.createPlayer(game)
   entity.gun.createGun(game)

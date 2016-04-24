@@ -19,6 +19,15 @@ function createGun(game)
     update = bulletGenerator(comboUpdater(straightShotUpdaterFactory()))
     -- update = bulletGenerator(comboUpdater(straightShotUpdaterFactory(),waveShotUpdaterFactory(),rocketShotUpdaterFactory()))
   })
+
+  gun:addComponent('render-0', {
+    render = function(self)
+      for _, batch in pairs(game.spriteBatches) do
+        love.graphics.draw(batch)
+        batch:clear()
+      end
+    end
+  })
 end
 
 function bulletGenerator(f)
@@ -68,10 +77,17 @@ function straightShotUpdaterFactory()
           dy = 2 * img:getHeight()
         })
 
+        game.spriteBatches.bullet:add(
+          bulletOrigin.x,
+          bulletOrigin.y,
+          0,
+          2,
+          2
+        )
+
         bullet:addComponent('bullet')
         bullet:addComponent('clear-on-reset')
         bullet:addComponent('damage', { amount = 3 })
-        bullet:addComponent('render-0', util.renderImage(game, bulletOrigin, { img = img, sx = 2, sy = 2}))
         bullet:addComponent('update', {
           update = function(self, game, dt)
             if not util.overlap(
@@ -81,6 +97,13 @@ function straightShotUpdaterFactory()
               game.ecs:removeEntity(bullet)
             else
               bulletOrigin.y = bulletOrigin.y - (dt * 500)
+              game.spriteBatches.bullet:add(
+                bulletOrigin.x,
+                bulletOrigin.y,
+                0,
+                2,
+                2
+              )
             end
           end
         })
@@ -124,9 +147,16 @@ function waveShotUpdaterFactory(self, game, dt)
         local startTime = love.timer.getTime()
         local originalX = bulletOrigin.x
 
+        game.spriteBatches.wave:add(
+          bulletOrigin.x,
+          bulletOrigin.y,
+          0,
+          2,
+          2
+        )
+
         bullet:addComponent('bullet')
         bullet:addComponent('clear-on-reset')
-        bullet:addComponent('render-0', util.renderImage(game, bulletOrigin, { img = img, sx = 2, sy = 2}))
         bullet:addComponent('damage', { amount = 4 })
         bullet:addComponent('update', {
           update = function(self, game, dt)
@@ -144,6 +174,14 @@ function waveShotUpdaterFactory(self, game, dt)
               end
               bulletOrigin.y = bulletOrigin.y - (dt * 400)
               bulletOrigin.x = originalX + direction * 40 * math.sin(10 * (love.timer.getTime() - startTime))
+
+              game.spriteBatches.wave:add(
+                bulletOrigin.x,
+                bulletOrigin.y,
+                0,
+                2,
+                2
+              )
             end
           end
         })
@@ -188,9 +226,15 @@ function rocketShotUpdaterFactory()
       local startTime = love.timer.getTime()
       local fullSpeedAt = 0.5
 
+      game.spriteBatches.rocket:add(
+        bulletOrigin.x,
+        bulletOrigin.y,
+        0,
+        2,
+        2
+      )
       bullet:addComponent('bullet')
       bullet:addComponent('clear-on-reset')
-      bullet:addComponent('render-0', util.renderImage(game, bulletOrigin, { img = img, sx = 2, sy = 2}))
       bullet:addComponent('damage', { amount = 5 })
       bullet:addComponent('update', {
         update = function(self, game, dt)
@@ -211,6 +255,14 @@ function rocketShotUpdaterFactory()
           else
             bulletOrigin.y = bulletOrigin.y - (dt * (-200 + (speedMultiplier * 700)))
           end
+
+          game.spriteBatches.rocket:add(
+            bulletOrigin.x,
+            bulletOrigin.y,
+            0,
+            2,
+            2
+          )
         end
       })
     end
